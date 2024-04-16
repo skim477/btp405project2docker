@@ -1,0 +1,34 @@
+{% extends "students/base.html" %}
+
+{% block body %}
+{% block content %}
+{% if user.is_authenticated %}
+
+<p>Logged in as {{user.username}}</p>
+<form action="{% url 'login' %}" method="post">
+  {% csrf_token %}
+
+  <button type="submit">Log Out</button>
+</form>
+<h3 class="m-4">My Profile</h3>
+<div class="card bg-light ms-4 me-4 mb-4">
+    <div class="card-header">
+        My Details
+    </div>
+    <div class="card-body">
+        <ul class="list-unstyled">
+            <li><strong>Student Number: </strong>{{ student.student_number }}</li>
+            <li><strong>First Name: </strong>{{ student.first_name }}</li>
+            <li><strong>Last Name: </strong>{{ student.last_name }}</li>
+            <li><strong>Email address: </strong>{{ student.email }}</li>
+            <li><strong>Program: </strong>{{ student.field_of_study }}</li>
+            <li><strong>GPA: </strong>{{ student.gpa }}</li>
+        </ul>
+    </div>
+</div>
+{% else %}
+<p>You are not logged in</p>
+<a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}
+{% endblock %}
