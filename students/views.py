@@ -8,7 +8,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from .decorators import teacher_required 
 
-@teacher_required
+
 def index(request):
     return render(request, 'students/index.html', {
         'students': Student.objects.all()

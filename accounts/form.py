@@ -8,9 +8,9 @@ class SignUpForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(max_length=255, help_text='Required. Inform a valid email address.')
-    student_number = forms.IntegerField(help_text='Required. Inform a valid student number.')
-    field_of_study = forms.CharField(max_length=50)
-    gpa = forms.FloatField(required=False)
+    student_number = forms.IntegerField(required=False, help_text='Optional unless you are a student.')
+    field_of_study = forms.CharField(max_length=50, required=False, help_text='Optional unless you are a student.')
+    gpa = forms.FloatField(required=False, help_text='Optional unless you are a student.')
     role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True)
    
     class Meta:
@@ -19,7 +19,7 @@ class SignUpForm(UserCreationForm):
     
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
+
 
         if commit:
             user.save()
@@ -39,3 +39,18 @@ class SignUpForm(UserCreationForm):
                 )
 
         return user
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        role = cleaned_data.get('role')
+        student_number = cleaned_data.get('student_number')
+        field_of_study = cleaned_data.get('field_of_study')
+        gpa  = cleaned_data.get('gpa')
+        # Check if the role is 'student' and if so, enforce that student_number is provided
+        if role == 'student' and not student_number:
+            self.add_error('student_number', 'Student number is required for students.')
+        if role == 'student' and not field_of_study:
+            self.add_error('field_of_study', 'field of study is required for students.')
+        if role == 'student' and not gpa:
+            self.add_error('gpa', 'gpa is required for students.') 
+        return cleaned_data
