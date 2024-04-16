@@ -3,14 +3,22 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile
 from students.models import Student  
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
 class SignUpForm(UserCreationForm):
+    
+    alpha_validator = RegexValidator(r'^[a-zA-Z]*$', 'Only alphabetic characters are allowed.')
+    
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(max_length=255, help_text='Required. Inform a valid email address.')
     student_number = forms.IntegerField(required=False, help_text='Optional unless you are a student.')
-    field_of_study = forms.CharField(max_length=50, required=False, help_text='Optional unless you are a student.')
-    gpa = forms.FloatField(required=False, help_text='Optional unless you are a student.')
+    field_of_study = forms.CharField(max_length=50, required=False, help_text='Optional unless you are a student.', validators=[alpha_validator])
+    gpa = forms.FloatField(
+        required=False, 
+        help_text='Optional unless you are a student.',
+        validators=[MinValueValidator(0), MaxValueValidator(4)]
+        )
     role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True)
    
     class Meta:
@@ -32,6 +40,7 @@ class SignUpForm(UserCreationForm):
                     defaults={
                         'first_name': self.cleaned_data['first_name'],
                         'last_name': self.cleaned_data['last_name'],
+                        'email': self.cleaned_data['email'],
                         'student_number': self.cleaned_data['student_number'],
                         'field_of_study': self.cleaned_data['field_of_study'],
                         'gpa': self.cleaned_data['gpa']
